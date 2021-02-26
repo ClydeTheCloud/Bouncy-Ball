@@ -1,0 +1,248 @@
+body {
+    font-family: 'Calibri', 'Trebuchet MS', sans-serif;
+}
+
+.game-view {
+    position: relative;
+    height: 300px;
+}
+
+.wrapper {
+    position: relative;
+    padding: 25px;
+    border-radius: 25px;
+    box-sizing: border-box;
+    overflow: hidden;
+    width: 1000px;
+
+    margin: 0 auto;
+    background-color: darkgrey;
+    background: linear-gradient(0deg, rgba(220, 140, 140, 1) 0%, rgba(140, 140, 220, 1) 100%);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Game Objects */
+
+.ball {
+    width: 60px;
+    height: 60px;
+
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border-radius: 100%;
+    overflow: hidden;
+    animation-name: spin;
+    animation-timing-function: linear;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+}
+
+.quarter:nth-child(1),
+.quarter:nth-child(4) {
+    background-color: cornflowerblue;
+}
+.quarter:nth-child(2),
+.quarter:nth-child(3) {
+    background-color: paleturquoise;
+}
+
+.quarter {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+}
+
+.quarter:nth-child(1) {
+    top: 0;
+    left: 0;
+}
+.quarter:nth-child(2) {
+    top: 0;
+    right: 0;
+}
+.quarter:nth-child(3) {
+    bottom: 0;
+    left: 0;
+}
+.quarter:nth-child(4) {
+    bottom: 0;
+    right: 0;
+}
+
+.obstacle {
+    box-sizing: border-box;
+    width: 60px;
+    height: 60px;
+    background-color: rgb(179, 120, 93);
+
+    position: absolute;
+    bottom: 0;
+    border: solid 5px rgb(55, 40, 64);
+}
+
+.obstacle::before,
+.obstacle::after {
+    box-sizing: border-box;
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+.obstacle::before {
+    width: 40px;
+    height: 40px;
+    border-top: solid 5px rgb(88, 48, 61);
+    border-right: solid 5px rgb(122, 71, 81);
+    border-left: solid 5px rgb(122, 71, 81);
+    border-bottom: solid 5px rgb(199, 146, 110);
+}
+
+.obstacle::after {
+    width: 50px;
+    height: 50px;
+    border: solid 5px transparent;
+    border-top: solid 5px rgb(199, 146, 110);
+    border-bottom: solid 5px rgb(149, 96, 90);
+}
+
+/* Background */
+
+.background-element {
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 0;
+}
+
+.background {
+    isolation: isolate;
+}
+
+.ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 25px;
+    background-color: rgb(60, 40, 40);
+    z-index: 10;
+}
+
+/* UI */
+
+#game-over-label {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    height: 75px;
+    position: absolute;
+    left: calc(50% - 100px);
+    margin: 0 auto;
+    padding: 25px;
+
+    background-color: red;
+    color: white;
+    border-radius: 10px;
+    box-sizing: border-box;
+
+    font-size: 16px;
+    text-align: center;
+
+    animation-name: gameOverAnimation;
+    animation-timing-function: linear;
+    animation-duration: 1.8s;
+    animation-iteration-count: infinite;
+}
+
+#game-over-label h2,
+#start-label h2 {
+    margin: 0;
+}
+
+#start-label {
+    box-sizing: border-box;
+    display: none;
+    padding: 10px;
+    width: 300px;
+    position: absolute;
+    left: calc(50% - 150px);
+    bottom: 75px;
+    text-align: center;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.score-wrapper {
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    color: white;
+}
+
+.score-wrapper h3 {
+    margin: 0;
+}
+
+.modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* position: fixed; */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* width: 100%; */
+    /* height: 100%; */
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.4);
+
+    text-align: center;
+}
+
+.modal .popup {
+    padding: 50px;
+    background-color: darkgrey;
+    border-radius: 25px;
+}
+
+.modal p {
+    margin-top: 0;
+}
+
+/* Animations */
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes gameOverAnimation {
+    0% {
+        transform: rotate(0deg) scale(1.05);
+    }
+    25% {
+        transform: rotate(5deg) scale(1);
+    }
+    50% {
+        transform: rotate(0deg) scale(0.95);
+    }
+    75% {
+        transform: rotate(-5deg) scale(1);
+    }
+    100% {
+        transform: rotate(0deg) scale(1.05);
+    }
+}
