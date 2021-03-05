@@ -12,10 +12,17 @@
 </head>
 
 <body>
-	<div class="wrapper">
+	<main class="wrapper">
 		<div class="score-wrapper">
-			<h3 id="score">Score: 0</h3>
-			<h3 id="high-score">High score: 0</h3>
+			<div class="score-wrapper-inner">
+				<h3 id="score">Score: 0</h3>
+			</div>
+			<div class="score-wrapper-inner">
+				<h3 class="player-name"></h3>
+			</div>
+			<div class="score-wrapper-inner">
+				<h3 id="high-score">High score: none</h3>
+			</div>
 		</div>
 		<div class="ground"></div>
 
@@ -43,29 +50,32 @@
 			<h2>Press Space to start</h2>
 		</div>
 
-		<div class="modal name">
-			<!-- Name prompt -->
+		<div class="modal modal-name">
 			<div class="popup">
 				<p>Enter your name.</p>
 				<div class="warning" hidden>
-					<h4></h4>
+					<h4 class="warning-text"></h4>
 				</div>
-				<input type="text" name="name" id="name" placeholder="Name">
-				<button class="name-btn">Set</button>
+				<form>
+					<input type="text" name="name" id="name" placeholder="Name">
+					<button class="name-btn">Set</button>
+				</form>
 			</div>
 		</div>
-	</div>
-	<!-- Obstacle for a preview -->
-	<div class="obstacle"></div>
 
+		<div class="modal modal-leaderboard">
+			<div class="popup">
+				<div class="leaderboard-wrapper">
+				</div>
+				<button class="close-leaderboard">Close</button>
+			</div>
+		</div>
 
-
-	<!-- <div class="modal"> -->
-	<!-- Score -->
-	<!-- <div class="popup"> -->
-
-	<!-- </div> -->
-	<!-- </div> -->
+		<div class="settings">
+			<button class="change-name-btn">Change name</button>
+			<button class="leaderboard-btn">Leaderboard</button>
+		</div>
+	</main>
 </body>
 
 </html>

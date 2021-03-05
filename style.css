@@ -4,7 +4,7 @@ body {
 
 .game-view {
     position: relative;
-    height: 300px;
+    height: 350px;
 }
 
 .wrapper {
@@ -117,7 +117,42 @@ body {
     box-sizing: border-box;
     position: absolute;
     bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
 }
+
+.background-element .row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.window {
+    position: relative;
+    background-color: rgb(252, 244, 180);
+    box-shadow: 0 0 20px -2px rgba(255, 255, 255, 0.4);
+}
+
+/* .window::before {
+    content: '';
+    width: 100%;
+    height: 1px;
+    position: absolute;
+    top: 50%;
+    background-color: black;
+}
+
+.window::after {
+    content: '';
+    width: 1px;
+    height: 100%;
+    position: absolute;
+    left: 50%;
+    background-color: black;
+} */
 
 .background {
     isolation: isolate;
@@ -170,6 +205,7 @@ body {
     display: none;
     padding: 10px;
     width: 300px;
+    height: 50px;
     position: absolute;
     left: calc(50% - 150px);
     bottom: 75px;
@@ -183,6 +219,19 @@ body {
     display: flex;
     justify-content: space-between;
     color: white;
+}
+
+.score-wrapper-inner {
+    text-align: center;
+    width: 33%;
+}
+
+.score-wrapper-inner:first-child {
+    text-align: left;
+}
+
+.score-wrapper-inner:last-child {
+    text-align: right;
 }
 
 .score-wrapper h3 {
@@ -210,12 +259,122 @@ body {
 
 .modal .popup {
     padding: 50px;
-    background-color: darkgrey;
+    background-color: rgb(74, 36, 82);
+    color: white;
     border-radius: 25px;
+    box-shadow: 0 0 25px -10px white;
 }
 
 .modal p {
     margin-top: 0;
+}
+
+.modal-leaderboard {
+    display: none;
+}
+
+.modal-name input {
+    box-sizing: border-box;
+    padding-left: 5px;
+    border: none;
+    border-radius: 5px;
+    min-height: 30px;
+}
+
+.modal-leaderboard .popup {
+    padding: 25px;
+    min-width: 200px;
+    min-height: 200px;
+}
+
+.warning {
+    color: pink;
+}
+
+.settings {
+    display: none;
+    justify-content: space-between;
+    position: absolute;
+    width: 300px;
+    bottom: 25px;
+    left: calc(50% - 150px);
+}
+
+.settings button {
+    box-sizing: border-box;
+    /* display: block; */
+    width: 125px;
+    background-color: rgba(255, 255, 255, 0.75);
+    padding: 0.5rem;
+    border-radius: 10px;
+    border: none;
+
+    color: black;
+    font-weight: bold;
+    /* margin-top: 25px; */
+
+    transition: all 0.8s;
+}
+
+.settings button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.modal-leaderboard table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.modal-leaderboard thead th,
+td {
+    padding: 3px 10px;
+}
+
+.modal-leaderboard thead th:nth-child(1),
+.modal-leaderboard td:nth-child(1) {
+    width: 30%;
+    text-align: center;
+    border-right: solid 1px white;
+}
+.modal-leaderboard thead th:nth-child(2),
+.modal-leaderboard td:nth-child(2) {
+    width: 40%;
+    text-align: left;
+    border-right: solid 1px white;
+}
+.modal-leaderboard thead th:nth-child(3),
+.modal-leaderboard td:nth-child(3) {
+    width: 30%;
+    text-align: right;
+}
+
+.modal-leaderboard thead th {
+    border-bottom: solid 1px white;
+}
+
+.modal-leaderboard tr:nth-child(even) {
+    background-color: rgba(100, 100, 255, 0.1);
+}
+
+.player-in-leaderboard {
+    background-color: rgba(255, 100, 100, 0.2);
+    box-shadow: 0 0 5px 5px rgba(255, 255, 255, 0.3);
+    animation-name: glow;
+    animation-timing-function: linear;
+    animation-duration: 0.5s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+.close-leaderboard,
+.name-btn {
+    min-height: 30px;
+    background-color: white;
+    color: black;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    margin-top: 15px;
 }
 
 /* Animations */
@@ -244,5 +403,14 @@ body {
     }
     100% {
         transform: rotate(0deg) scale(1.05);
+    }
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 10px 10px rgba(255, 255, 255, 0.15);
+    }
+    to {
+        box-shadow: 0 0 5px 5px rgba(255, 255, 255, 0.3);
     }
 }
