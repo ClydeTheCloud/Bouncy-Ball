@@ -253,28 +253,32 @@ function openLeaderboardModal(e) {
 }
 
 function showLeaderboard(leaderboard, player) {
-    leaderboardTable = generateTable(leaderboard)
-    leaderboardContent.innerHTML = ''
-    leaderboardContent.appendChild(leaderboardTable)
+    if (typeof leaderboard === 'object') {
+        leaderboardTable = generateTable(leaderboard)
+        leaderboardContent.innerHTML = ''
+        leaderboardContent.appendChild(leaderboardTable)
 
-    if (player) {
-        if (player.position < 11) {
-            const position = document.querySelector(`.modal-leaderboard tbody tr:nth-child(${player.position})`)
-            position.classList.add('player-in-leaderboard')
-        } else {
-            const tableBody = document.querySelector('.modal-leaderboard tbody')
-            const playerOutOfLeaderboard = document.createElement('tr')
-            const playerPosition = document.createElement('td')
-            playerPosition.innerText = player.position
-            const playerName = document.createElement('td')
-            playerName.innerText = player.name
-            const playerScore = document.createElement('td')
-            playerScore.innerText = player.score
-            playerOutOfLeaderboard.appendChild(playerPosition)
-            playerOutOfLeaderboard.appendChild(playerName)
-            playerOutOfLeaderboard.appendChild(playerScore)
-            tableBody.appendChild(playerOutOfLeaderboard)
+        if (player) {
+            if (player.position < 11) {
+                const position = document.querySelector(`.modal-leaderboard tbody tr:nth-child(${player.position})`)
+                position.classList.add('player-in-leaderboard')
+            } else {
+                const tableBody = document.querySelector('.modal-leaderboard tbody')
+                const playerOutOfLeaderboard = document.createElement('tr')
+                const playerPosition = document.createElement('td')
+                playerPosition.innerText = player.position
+                const playerName = document.createElement('td')
+                playerName.innerText = player.name
+                const playerScore = document.createElement('td')
+                playerScore.innerText = player.score
+                playerOutOfLeaderboard.appendChild(playerPosition)
+                playerOutOfLeaderboard.appendChild(playerName)
+                playerOutOfLeaderboard.appendChild(playerScore)
+                tableBody.appendChild(playerOutOfLeaderboard)
+            }
         }
+    } else if (typeof leaderboard === 'string') {
+        leaderboardContent.innerHTML = `<h2>${leaderboard}</h2>`
     }
 }
 
