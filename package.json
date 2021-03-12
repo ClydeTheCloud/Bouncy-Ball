@@ -1,0 +1,36 @@
+{
+  "name": "bouncy-ball",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel src/index.html",
+    "prod": "rm -rf dist && parcel build src/index.html --public-url ./",
+    "push": "cd ../../projects/portfolio/ && rm -rf bouncy-ball && cd ../../sandbox/bouncy-ball/ && cp -r dist ../../projects/portfolio/bouncy-ball && cd ../../projects/portfolio/ && git add -A && git commit -m 'autocommit' && git push",
+    "prodAndPush": "npm run prod && npm run push"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ClydeTheCloud/Bouncy-Ball.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ClydeTheCloud/Bouncy-Ball/issues"
+  },
+  "homepage": "https://github.com/ClydeTheCloud/Bouncy-Ball#readme",
+  "devDependencies": {
+    "@babel/core": "^7.13.10",
+    "@babel/preset-env": "^7.13.10",
+    "parcel-bundler": "^1.12.3"
+  },
+  "browserslist": [
+    "last 3 and_chr versions",
+    "last 3 chrome versions",
+    "last 3 opera versions",
+    "last 3 ios_saf versions",
+    "last 3 safari versions"
+  ]
+}

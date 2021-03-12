@@ -1,6 +1,9 @@
 let ball = document.querySelector('.ball')
 const action = document.querySelector('.action')
 const layers = document.querySelectorAll('.layer')
+const tapZone = document.querySelector('.tap-zone')
+const wrapper = document.querySelector('.wrapper')
+const gameView = document.querySelector('.game-view')
 
 // Labels
 const playerNameLabel = document.querySelector('.player-name')
@@ -14,11 +17,13 @@ const highScoreLabel = document.getElementById('high-score')
 const changeNameBtn = document.querySelector('.change-name-btn')
 const leaderboardBtn = document.querySelector('.leaderboard-btn')
 const settingsElement = document.querySelector('.settings')
+const quialityBtn = document.querySelector('.quality-btn')
 
 // Modals
 const nameModal = document.querySelector('.modal-name')
 const leaderboardModal = document.querySelector('.modal-leaderboard')
 const leaderboardContent = document.querySelector('.leaderboard-wrapper')
+const leaderboardPopup = document.querySelector('.modal-leaderboard .popup')
 const nameBtn = document.querySelector('.name-btn')
 const warningText = document.querySelector('.warning-text')
 const closeLeaderboardBtn = document.querySelector('.close-leaderboard')
@@ -32,18 +37,36 @@ let highScore = 0
 let score = 0
 let speedCoefficient = 1
 let playerName
+let clickOrTouch = 'click'
+let qualitySettings = localStorage.getItem('bouncy-quality') || 'high'
+
+quialityBtn.textContent = `Quality: ${qualitySettings}`
 
 let allTimeouts = []
 let allIntervals = []
+let backgroundTimeouts = []
 
-const leaderboardAPI = 'http://localhost:3001/score'
+const leaderboardAPI = 'https://bouncy-server.herokuapp.com/score'
+
+// check for touchscreen, adapt for mobile if found
+if ('ontouchstart' in document.documentElement) {
+    clickOrTouch = 'touchstart'
+    tapZone.style.display = 'flex'
+    startLabel.innerHTML = '<h2>Tap to start</h2>'
+    tapZone.addEventListener('touchstart', control)
+} else {
+    document.addEventListener('keydown', control)
+}
 
 function control(e) {
-    if (e.key === ' ' && isGameOver && isGameReady) {
-        restart()
-    } else if (e.key === ' ' && !isInAir && !isGameOver) {
-        isInAir = true
-        jump()
+    if (clickOrTouch === 'touchstart' || (clickOrTouch === 'click' && e.key === ' ')) {
+        e.preventDefault()
+        if (isGameOver && isGameReady) {
+            restart()
+        } else if (!isInAir && !isGameOver) {
+            isInAir = true
+            jump()
+        }
     }
 }
 
@@ -125,6 +148,7 @@ function generateObstacles() {
 
     const obstacle = document.createElement('div')
     obstacle.classList.add('obstacle')
+    obstacle.classList.add(qualitySettings)
     action.appendChild(obstacle)
     obstacle.style.left = obstaclePosition + 'px'
 
@@ -191,8 +215,6 @@ async function gameOver() {
     }
 }
 
-//TODO
-
 async function postHighScore() {
     const response = await fetch(leaderboardAPI, {
         method: 'POST',
@@ -200,7 +222,11 @@ async function postHighScore() {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ name: playerName, score: score }),
-    }).then(res => res.json())
+    })
+        .then(res => res.json())
+        .catch(err => {
+            showError(err)
+        })
 
     highScore = response.personal.score
     highScoreLabel.innerHTML = `High score: ${highScore}`
@@ -214,9 +240,13 @@ function fetchLeaderboard() {
     fetch(leaderboardAPI)
         .then(res => res.json())
         .then(data => showLeaderboard(data))
+        .catch(err => {
+            showError(err)
+        })
 }
 
-function openLeaderboardModal() {
+function openLeaderboardModal(e) {
+    e.stopPropagation()
     isGameReady = false
     leaderboardModal.style.display = 'flex'
     fetchLeaderboard()
@@ -248,17 +278,15 @@ function showLeaderboard(leaderboard, player) {
     }
 }
 
-function closeLeaderboardModal() {
+function closeLeaderboardModal(e) {
+    e.stopPropagation()
     leaderboardModal.style.display = 'none'
     isGameReady = true
 }
 
 function generateTable(leaderboard) {
     const table = document.createElement('table')
-    const caption = document.createElement('caption')
-    caption.innerText = 'Leaderboard'
     const thead = document.createElement('thead')
-    table.appendChild(caption)
     table.appendChild(thead)
     const tr = document.createElement('tr')
     thead.appendChild(tr)
@@ -301,6 +329,9 @@ function getPersonalHighScore(name) {
                 highScoreLabel.innerHTML = `High score: none`
             }
         })
+        .catch(err => {
+            showError(err)
+        })
 }
 
 function generateBackground() {
@@ -310,54 +341,54 @@ function generateBackground() {
 }
 
 function generateBackgroundLayer(layer, index, arrayLength) {
-    const indexFixed = index + 1
-    const zIndex = indexFixed
-    const randomTime = (Math.random() * 20 + (2000 / indexFixed) * indexFixed) / speedCoefficient
-    let backgroundElementPosition = 1500
-    const randomShadeOfGray = Math.round(Math.random() * 10 + 60) + 20 * indexFixed
+    const randomTime = (Math.random() * 2 + 2 / speedCoefficient) * 1000
+    if (qualitySettings !== 'low') {
+        const indexFixed = index + 1
+        const timeToPassLayer = 30 / indexFixed / speedCoefficient
+        let backgroundElementPosition = 1050
+        const randomShadeOfGray = Math.round(Math.random() * 10 + 60) + 20 * indexFixed
 
-    const backgroundElement = document.createElement('div')
-    backgroundElement.classList.add('background-element')
-    layer.appendChild(backgroundElement)
-    backgroundElement.style.left = backgroundElementPosition + 'px'
-    backgroundElement.style.height = Math.round(Math.random() * 60 + 60) * indexFixed + 'px'
-    backgroundElement.style.width = Math.round(Math.random() * 50 + 50) * indexFixed + 'px'
-    backgroundElement.style.backgroundColor = `rgb(${randomShadeOfGray}, ${randomShadeOfGray}, ${randomShadeOfGray + 40})`
-    backgroundElement.style.zIndex = zIndex
-    backgroundElement.style.padding = 10 * indexFixed + 'px'
-
-    const numberOfRows = Math.round((parseInt(backgroundElement.style.height) - 25) / (30 * indexFixed))
-
-    // create rows of windows
-    for (let i = 0; i < numberOfRows; i++) {
-        const row = document.createElement('div')
-        row.classList.add('row')
-        backgroundElement.appendChild(row)
-
-        const columns = parseInt(backgroundElement.style.width) > 20 * indexFixed * 3 ? 3 : 2
-
-        // create columns of windows
-        for (let i = 0; i < columns; i++) {
-            const window = document.createElement('div')
-            window.classList.add('window')
-            window.style.height = 10 * indexFixed + 'px'
-            window.style.width = 10 * indexFixed + 'px'
-            row.appendChild(window)
-        }
-    }
-
-    let moveLoopId = setInterval(() => {
-        backgroundElementPosition -= 2 * speedCoefficient
+        const backgroundElement = document.createElement('div')
+        backgroundElement.classList.add('background-element')
+        backgroundElement.classList.add(qualitySettings)
+        layer.appendChild(backgroundElement)
         backgroundElement.style.left = backgroundElementPosition + 'px'
-    }, 30 / indexFixed)
+        backgroundElement.style.height = Math.round(Math.random() * 60 + 60) * indexFixed + 'px'
+        backgroundElement.style.width = Math.round(Math.random() * 50 + 50) * indexFixed + 'px'
+        backgroundElement.style.backgroundColor = `rgb(${randomShadeOfGray}, ${randomShadeOfGray}, ${randomShadeOfGray + 40})`
+        backgroundElement.style.zIndex = indexFixed
+        backgroundElement.style.padding = 10 * indexFixed + 'px'
 
-    let passCheckLoopId = setInterval(() => {
-        if (backgroundElementPosition < -350 * indexFixed) {
-            layer.removeChild(backgroundElement)
-            clearInterval(passCheckLoopId)
-            clearInterval(moveLoopId)
+        const numberOfRows = Math.round((parseInt(backgroundElement.style.height) - 25) / (30 * indexFixed))
+
+        if (qualitySettings === 'high') {
+            // create rows of windows
+            for (let i = 0; i < numberOfRows; i++) {
+                const row = document.createElement('div')
+                row.classList.add('row')
+                backgroundElement.appendChild(row)
+
+                const columns = parseInt(backgroundElement.style.width) > 20 * indexFixed * 3 ? 3 : 2
+
+                // create columns of windows
+                for (let i = 0; i < columns; i++) {
+                    const window = document.createElement('div')
+                    window.classList.add('window')
+                    window.style.height = 10 * indexFixed + 'px'
+                    window.style.width = 10 * indexFixed + 'px'
+                    row.appendChild(window)
+                }
+            }
         }
-    }, 50)
+
+        backgroundElement.style.animationDuration = timeToPassLayer + 's'
+
+        let backgroundTimoutId = setTimeout(() => {
+            layer.removeChild(backgroundElement)
+            backgroundTimeouts.filter(id => id !== backgroundTimoutId)
+        }, timeToPassLayer * 1000)
+        backgroundTimeouts.push(backgroundTimoutId)
+    }
 
     setTimeout(() => {
         generateBackgroundLayer(layer, index, arrayLength)
@@ -388,19 +419,73 @@ function setPlayerName(e) {
         warningLabel.removeAttribute('hidden')
         warningText.innerHTML = 'Minimum 3, maximum 13 characters'
     }
+    return false
 }
 
-function changeNameModal() {
+function changeNameModal(e) {
     nameModal.style.display = 'flex'
     isGameReady = false
     startLabel.style.display = 'none'
     settingsElement.style.display = 'none'
 }
 
-document.addEventListener('keydown', control)
-nameBtn.addEventListener('click', setPlayerName)
-changeNameBtn.addEventListener('click', changeNameModal)
-leaderboardBtn.addEventListener('click', openLeaderboardModal)
-closeLeaderboardBtn.addEventListener('click', closeLeaderboardModal)
+function showError(message) {
+    const errorPopup = document.createElement('div')
+    const gameWrapper = document.querySelector('.wrapper')
+    errorPopup.innerHTML = `<p>Something went wrong: ${message}</p>`
+    errorPopup.classList.add('error-popup')
+    gameWrapper.appendChild(errorPopup)
+
+    setTimeout(() => {
+        gameWrapper.removeChild(errorPopup)
+    }, 5000)
+}
+
+function changeQuality(e) {
+    e.stopPropagation()
+    if (qualitySettings === 'low') {
+        qualitySettings = 'high'
+        document.querySelectorAll('.background-element').forEach(b => b.classList.replace('low', 'high'))
+    } else if (qualitySettings === 'mid') {
+        qualitySettings = 'low'
+        document.querySelectorAll('.background-element').forEach(b => b.remove())
+        backgroundTimeouts.forEach(id => {
+            clearTimeout(id)
+        })
+        backgroundTimeouts = []
+    } else if (qualitySettings === 'high') {
+        qualitySettings = 'mid'
+        document.querySelectorAll('.window').forEach(w => w.remove())
+        document.querySelectorAll('.background-element').forEach(b => b.classList.replace('high', 'mid'))
+    }
+    localStorage.setItem('bouncy-quality', qualitySettings)
+    quialityBtn.textContent = `Quality: ${qualitySettings}`
+}
+
+nameBtn.addEventListener(clickOrTouch, setPlayerName)
+changeNameBtn.addEventListener(clickOrTouch, changeNameModal)
+leaderboardBtn.addEventListener(clickOrTouch, openLeaderboardModal)
+closeLeaderboardBtn.addEventListener(clickOrTouch, closeLeaderboardModal)
+quialityBtn.addEventListener(clickOrTouch, changeQuality)
+
+// Fix for mobile
+
+window.onresize = scaleGame
+
+function scaleGame() {
+    if (screen.width < 1000) {
+        const windowWidth = screen.width
+        wrapper.classList.add('fullscreen')
+        const scaleAmount = windowWidth / 1100
+        gameView.style.transform = `scale(${scaleAmount > 1 ? 1 : scaleAmount})`
+        tapZone.style.transform = `scale(${scaleAmount > 1 ? 1 : scaleAmount}) translateY(-50%)`
+    } else {
+        wrapper.classList.remove('fullscreen')
+        gameView.style.transform = ''
+        tapZone.style.transform = 'translateY(-50%)'
+    }
+}
+
+scaleGame()
 
 generateBackground()

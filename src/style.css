@@ -1,44 +1,65 @@
 body {
     font-family: 'Calibri', 'Trebuchet MS', sans-serif;
+    background-color: rgb(241, 198, 188);
+    margin: 0;
+    padding: 0;
 }
 
 .game-view {
     position: relative;
     height: 350px;
+
+    transform-origin: bottom left;
 }
 
 .wrapper {
     position: relative;
-    padding: 25px;
-    border-radius: 25px;
-    box-sizing: border-box;
-    overflow: hidden;
-    width: 1000px;
-
-    margin: 0 auto;
-    background-color: darkgrey;
-    background: linear-gradient(0deg, rgba(220, 140, 140, 1) 0%, rgba(140, 140, 220, 1) 100%);
-
     display: flex;
     flex-direction: column;
     justify-content: center;
+    overflow: hidden;
+
+    margin: 25px auto;
+    border: 3px solid white;
+    box-sizing: border-box;
+    border-radius: 25px;
+    width: 1000px;
+    height: 400px;
+    max-height: 400px;
+    min-height: 225px;
+    padding: 25px;
+
+    background-color: rgb(220, 140, 140);
+    background: linear-gradient(0deg, rgb(220, 140, 140) 0%, rgb(140, 140, 220) 100%);
+}
+
+.wrapper.fullscreen {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    margin: 0;
+    width: auto;
+    height: auto;
 }
 
 /* Game Objects */
 
 .ball {
-    width: 60px;
-    height: 60px;
-
     position: absolute;
     bottom: 0;
     left: 0;
-    border-radius: 100%;
     overflow: hidden;
+
     animation-name: spin;
     animation-timing-function: linear;
     animation-duration: 1s;
     animation-iteration-count: infinite;
+
+    border-radius: 100%;
+    width: 60px;
+    height: 60px;
 }
 
 .quarter:nth-child(1),
@@ -74,69 +95,83 @@ body {
 }
 
 .obstacle {
-    box-sizing: border-box;
-    width: 60px;
-    height: 60px;
-    background-color: rgb(179, 120, 93);
-
     position: absolute;
     bottom: 0;
+
+    box-sizing: border-box;
     border: solid 5px rgb(55, 40, 64);
+    width: 60px;
+    height: 60px;
+
+    background-color: rgb(179, 120, 93);
 }
 
 .obstacle::before,
 .obstacle::after {
-    box-sizing: border-box;
     content: '';
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translateX(-50%) translateY(-50%);
+    box-sizing: border-box;
 }
 
 .obstacle::before {
-    width: 40px;
-    height: 40px;
     border-top: solid 5px rgb(88, 48, 61);
     border-right: solid 5px rgb(122, 71, 81);
-    border-left: solid 5px rgb(122, 71, 81);
     border-bottom: solid 5px rgb(199, 146, 110);
+    border-left: solid 5px rgb(122, 71, 81);
+    width: 40px;
+    height: 40px;
 }
 
 .obstacle::after {
-    width: 50px;
-    height: 50px;
     border: solid 5px transparent;
     border-top: solid 5px rgb(199, 146, 110);
     border-bottom: solid 5px rgb(149, 96, 90);
+    width: 50px;
+    height: 50px;
+}
+
+.low.obstacle::after,
+.low.obstacle::before {
+    display: none;
 }
 
 /* Background */
 
 .background-element {
-    box-sizing: border-box;
     position: absolute;
     bottom: 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    box-sizing: border-box;
+
+    animation-name: background-parallax-movement;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    animation-direction: normal;
 }
 
 .background-element .row {
-    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 100%;
 }
 
 .window {
     position: relative;
     background-color: rgb(252, 244, 180);
+}
+
+.high .window {
     box-shadow: 0 0 20px -2px rgba(255, 255, 255, 0.4);
 }
 
-/* .window::before {
+.high .window::before {
     content: '';
     width: 100%;
     height: 1px;
@@ -145,14 +180,18 @@ body {
     background-color: black;
 }
 
-.window::after {
+.high .window::after {
     content: '';
     width: 1px;
     height: 100%;
     position: absolute;
     left: 50%;
     background-color: black;
-} */
+}
+
+.low .background-element {
+    display: none;
+}
 
 .background {
     isolation: isolate;
@@ -160,39 +199,39 @@ body {
 
 .ground {
     position: absolute;
+    z-index: 10;
     bottom: 0;
     left: 0;
     width: 100%;
     height: 25px;
     background-color: rgb(60, 40, 40);
-    z-index: 10;
 }
 
 /* UI */
 
 #game-over-label {
+    position: absolute;
+    left: calc(50% - 100px);
     display: none;
     justify-content: center;
     align-items: center;
-    width: 200px;
-    height: 75px;
-    position: absolute;
-    left: calc(50% - 100px);
-    margin: 0 auto;
-    padding: 25px;
 
-    background-color: red;
-    color: white;
+    margin: 0 auto;
     border-radius: 10px;
     box-sizing: border-box;
-
-    font-size: 16px;
-    text-align: center;
+    width: 200px;
+    height: 75px;
+    padding: 25px;
 
     animation-name: gameOverAnimation;
     animation-timing-function: linear;
     animation-duration: 1.8s;
     animation-iteration-count: infinite;
+
+    background-color: red;
+    color: white;
+    font-size: 16px;
+    text-align: center;
 }
 
 #game-over-label h2,
@@ -201,17 +240,23 @@ body {
 }
 
 #start-label {
-    box-sizing: border-box;
-    display: none;
-    padding: 10px;
-    width: 300px;
-    height: 50px;
     position: absolute;
     left: calc(50% - 150px);
     bottom: 75px;
-    text-align: center;
+    display: none;
+
     border-radius: 10px;
+    box-sizing: border-box;
+    width: 300px;
+    height: 50px;
+    padding: 10px;
+
+    text-align: center;
     background-color: rgba(255, 255, 255, 0.3);
+}
+
+.wrapper.fullscreen #start-label {
+    opacity: 0;
 }
 
 .score-wrapper {
@@ -222,8 +267,8 @@ body {
 }
 
 .score-wrapper-inner {
-    text-align: center;
     width: 33%;
+    text-align: center;
 }
 
 .score-wrapper-inner:first-child {
@@ -239,30 +284,31 @@ body {
 }
 
 .modal {
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
     display: flex;
     align-items: center;
     justify-content: center;
 
-    /* position: fixed; */
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    /* width: 100%; */
-    /* height: 100%; */
-    z-index: 10;
+    padding: 25px;
+
     background-color: rgba(0, 0, 0, 0.4);
 
     text-align: center;
 }
 
 .modal .popup {
+    box-sizing: border-box;
+    box-shadow: 0 0 25px -10px white;
+    border-radius: 25px;
     padding: 50px;
     background-color: rgb(74, 36, 82);
     color: white;
-    border-radius: 25px;
-    box-shadow: 0 0 25px -10px white;
 }
 
 .modal p {
@@ -275,16 +321,17 @@ body {
 
 .modal-name input {
     box-sizing: border-box;
-    padding-left: 5px;
     border: none;
     border-radius: 5px;
     min-height: 30px;
+    padding-left: 5px;
 }
 
 .modal-leaderboard .popup {
-    padding: 25px;
-    min-width: 200px;
+    min-width: 250px;
     min-height: 200px;
+    max-height: 375px;
+    padding: 25px;
 }
 
 .warning {
@@ -292,28 +339,27 @@ body {
 }
 
 .settings {
+    position: absolute;
+    left: calc(50% - 200px);
     display: none;
     justify-content: space-between;
-    position: absolute;
-    width: 300px;
+    width: 400px;
     bottom: 25px;
-    left: calc(50% - 150px);
 }
 
 .settings button {
-    box-sizing: border-box;
-    /* display: block; */
-    width: 125px;
-    background-color: rgba(255, 255, 255, 0.75);
-    padding: 0.5rem;
-    border-radius: 10px;
     border: none;
+    border-radius: 10px;
+    box-sizing: border-box;
+    width: 125px;
+    padding: 0.5rem;
+
+    transition: all 0.8s;
+
+    background-color: rgba(255, 255, 255, 0.75);
 
     color: black;
     font-weight: bold;
-    /* margin-top: 25px; */
-
-    transition: all 0.8s;
 }
 
 .settings button:hover {
@@ -357,24 +403,95 @@ td {
 }
 
 .player-in-leaderboard {
-    background-color: rgba(255, 100, 100, 0.2);
-    box-shadow: 0 0 5px 5px rgba(255, 255, 255, 0.3);
     animation-name: glow;
     animation-timing-function: linear;
     animation-duration: 0.5s;
     animation-iteration-count: infinite;
     animation-direction: alternate;
+
+    box-shadow: 0 0 5px 5px rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 100, 100, 0.2);
 }
 
 .close-leaderboard,
 .name-btn {
-    min-height: 30px;
-    background-color: white;
-    color: black;
-    padding: 5px 10px;
+    margin-top: 15px;
     border: none;
     border-radius: 5px;
-    margin-top: 15px;
+    min-height: 30px;
+    padding: 5px 10px;
+
+    background-color: white;
+    color: black;
+}
+
+.error-popup {
+    z-index: 999;
+    position: absolute;
+    bottom: 50%;
+    transform: translateY(50%);
+
+    border-radius: 10px;
+    width: 200px;
+    padding: 5px;
+
+    /* opacity: 0.6; */
+    background-color: rgba(255, 0, 0, 0.4);
+
+    text-align: center;
+    color: white;
+
+    animation-name: error-popup;
+    animation-timing-function: ease-in-out;
+    animation-duration: 5s;
+    animation-iteration-count: 1;
+    animation-direction: normal;
+}
+
+.error-popup p {
+    margin: 0;
+    padding: 0;
+}
+
+.orientation {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    padding: 1rem;
+    background-color: rgba(25, 25, 25, 0.8);
+    text-align: center;
+    color: #fff;
+    font-size: 3rem;
+}
+
+.tap-zone {
+    position: absolute;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    transform-origin: top right;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    height: 200px;
+    border-radius: 100%;
+
+    background-color: rgba(255, 255, 255, 0.5);
+
+    color: white;
+    font-size: 3rem;
+    text-align: center;
+
+    user-select: none;
 }
 
 /* Animations */
@@ -412,5 +529,72 @@ td {
     }
     to {
         box-shadow: 0 0 5px 5px rgba(255, 255, 255, 0.3);
+    }
+}
+
+@keyframes background-parallax-movement {
+    from {
+        left: 1500px;
+    }
+    to {
+        left: -350px;
+    }
+}
+
+@keyframes error-popup {
+    0% {
+        right: -210px;
+    }
+    10% {
+        right: 25px;
+    }
+    90% {
+        right: 25px;
+    }
+    100% {
+        right: -210px;
+    }
+}
+
+@media screen and (max-width: 1000px) and (orientation: portrait) {
+    .orientation {
+        display: flex;
+    }
+
+    .wrapper {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 1000px) and (orientation: landscape) {
+    .orientation {
+        display: none;
+    }
+}
+
+/* This will fix leaderboard height on mobile devices (adds scroll) */
+@media (max-height: 400px) {
+    .leaderboard-wrapper {
+        max-height: 200px;
+        padding: 10px;
+        overflow: auto;
+    }
+
+    .leaderboard-wrapper thead th {
+        position: sticky;
+        top: -15px;
+        background-color: rgb(74, 36, 82);
+    }
+}
+
+@media (max-height: 350px) {
+    .leaderboard-wrapper {
+        max-height: 150px;
+    }
+}
+
+@media (max-height: 300px) {
+    .leaderboard-wrapper {
+        max-height: 100px;
     }
 }
