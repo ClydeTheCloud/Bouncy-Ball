@@ -54,6 +54,7 @@ if ('ontouchstart' in document.documentElement) {
     tapZone.style.display = 'flex'
     startLabel.innerHTML = '<h2>Tap to start</h2>'
     tapZone.addEventListener('touchstart', control)
+    tapZone.innerHTML = 'Start'
 } else {
     document.addEventListener('keydown', control)
 }
@@ -79,6 +80,7 @@ function restart() {
     isGameOver = false
     isGameReady = false
     gameOverLabel.style.display = 'none'
+    tapZone.innerHTML = 'Jump'
     if (!ball) {
         const newBall = document.createElement('div')
         for (let i = 0; i < 4; i++) {
@@ -203,6 +205,7 @@ async function gameOver() {
         action.removeChild(action.lastChild)
     }
     ball = null
+    tapZone.innerHTML = 'Start'
     if (score > highScore) {
         isGameReady = false
         leaderboardModal.style.display = 'flex'
