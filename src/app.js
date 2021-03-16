@@ -29,7 +29,7 @@ const warningText = document.querySelector('.warning-text')
 const closeLeaderboardBtn = document.querySelector('.close-leaderboard')
 
 let isInAir = false
-let gravity = 0.91
+let gravity = 0.92
 let isGameOver = true
 let isGameReady = false
 let position = 0
@@ -43,10 +43,10 @@ let qualitySettings = localStorage.getItem('bouncy-quality') || 'high'
 quialityBtn.textContent = `Quality: ${qualitySettings}`
 
 let allTimeouts = []
-let allIntervals = []
+let allObstacles = []
 let backgroundTimeouts = []
 
-const leaderboardAPI = 'https://bouncy-server.herokuapp.com/score'
+const leaderboardAPI = '/score/'
 
 // check for touchscreen, adapt for mobile if found
 if ('ontouchstart' in document.documentElement) {
@@ -65,7 +65,6 @@ function control(e) {
         if (isGameOver && isGameReady) {
             restart()
         } else if (!isInAir && !isGameOver) {
-            isInAir = true
             jump()
         }
     }
@@ -99,36 +98,60 @@ function restart() {
 }
 
 function jump() {
-    let lastPosition = 100
-    let jumpUpLoopId = setInterval(() => {
-        if (ball) {
-            let positionDifference = Math.abs(lastPosition - position)
-            if (positionDifference < 1) {
-                clearInterval(jumpUpLoopId)
-                allIntervals = allIntervals.filter(id => id !== jumpUpLoopId)
-                let fallDownLoopId = setInterval(() => {
-                    if (ball) {
-                        position -= 10
-                        position /= gravity
-                        if (position <= 0) {
-                            position = 0
-                            clearInterval(fallDownLoopId)
-                            allIntervals = allIntervals.filter(id => id !== fallDownLoopId)
-                            isInAir = false
-                        }
-                        ball.style.bottom = position + 'px'
-                    }
-                }, 20)
-                allIntervals.push(fallDownLoopId)
-            }
+    const baseMovementRate = 0.7
+    let start
+    let previousTotalAnimationTime
+    isInAir = true
+    let prevPosition = -10
+    let positionDifference
 
-            lastPosition = position
-            position += 10
+    function goUp(timestamp) {
+        if (ball) {
+            if (start === undefined) {
+                start = timestamp
+                previousTotalAnimationTime = 0
+            }
+            const totalAnimationTime = timestamp - start
+            const timeToRenderFrame = totalAnimationTime - previousTotalAnimationTime
+            const step = baseMovementRate * timeToRenderFrame
+
+            position += step
             position *= gravity
             ball.style.bottom = position + 'px'
+
+            positionDifference = position - prevPosition
+
+            if (positionDifference > baseMovementRate && position < 200) {
+                requestAnimationFrame(goUp)
+            } else {
+                requestAnimationFrame(fallDown)
+            }
+            prevPosition = position
+            previousTotalAnimationTime = totalAnimationTime
         }
-    }, 20)
-    allIntervals.push(jumpUpLoopId)
+    }
+
+    function fallDown(timestamp) {
+        if (ball) {
+            const totalAnimationTime = timestamp - start
+            const timeToRenderFrame = totalAnimationTime - previousTotalAnimationTime
+            const step = baseMovementRate * timeToRenderFrame
+
+            position -= step
+            position /= gravity
+            if (position <= 0) {
+                position = 0
+                isInAir = false
+                ball.style.bottom = position + 'px'
+                return
+            }
+            ball.style.bottom = position + 'px'
+            requestAnimationFrame(fallDown)
+            previousTotalAnimationTime = totalAnimationTime
+        }
+    }
+
+    requestAnimationFrame(goUp)
 }
 
 function speedUp() {
@@ -138,7 +161,7 @@ function speedUp() {
         if (!isGameOver) {
             speedCoefficient = (Number(speedCoefficient) + 0.1).toFixed(1)
             speedUp()
-            allTimeouts.filter(id => id !== speedUpTimeoutId)
+            allTimeouts = allTimeouts.filter(id => id !== speedUpTimeoutId)
         }
     }, randomTime)
     allTimeouts.push(speedUpTimeoutId)
@@ -147,6 +170,9 @@ function speedUp() {
 function generateObstacles() {
     let randomTime = Math.random() * 3000 + 1000
     let obstaclePosition = 1000
+    let start
+    let previousTotalAnimationTime
+    let animationId
 
     const obstacle = document.createElement('div')
     obstacle.classList.add('obstacle')
@@ -154,48 +180,57 @@ function generateObstacles() {
     action.appendChild(obstacle)
     obstacle.style.left = obstaclePosition + 'px'
 
-    let hitCheckLoopId = setInterval(() => {
-        if (obstaclePosition > 0 && obstaclePosition < 60 && position < 60) {
-            gameOver()
-            clearInterval(hitCheckLoopId)
+    function moveObstacle(timestamp) {
+        if (start === undefined) {
+            start = timestamp
+            previousTotalAnimationTime = 0
         }
-        obstaclePosition -= 2 * speedCoefficient
-        obstacle.style.left = obstaclePosition + 'px'
-    }, 2)
-    allIntervals.push(hitCheckLoopId)
+        const totalAnimationTime = timestamp - start
+        const timeToRenderFrame = totalAnimationTime - previousTotalAnimationTime
+        const step = 0.5 * timeToRenderFrame * speedCoefficient
 
-    let passCheckLoopId = setInterval(() => {
-        if (obstaclePosition < -60) {
+        if (obstaclePosition > -60 && obstaclePosition < 60 && position < 60) {
+            gameOver()
+            return
+        } else if (obstaclePosition < -60) {
+            allObstacles = allObstacles.filter(id => id !== animationId)
             action.removeChild(obstacle)
             score += 10 * speedCoefficient
             scoreLabel.innerHTML = `Score: ${score}`
-            clearInterval(passCheckLoopId)
-            clearInterval(hitCheckLoopId)
-            allIntervals = allIntervals.filter(id => id !== passCheckLoopId)
+            return
         }
-    }, 50)
 
-    allIntervals.push(passCheckLoopId)
+        obstaclePosition -= step
+        obstacle.style.left = obstaclePosition + 'px'
+
+        allObstacles = allObstacles.filter(id => id !== animationId)
+        animationId = requestAnimationFrame(moveObstacle)
+        allObstacles.push(animationId)
+        previousTotalAnimationTime = totalAnimationTime
+    }
+
+    animationId = requestAnimationFrame(moveObstacle)
+    allObstacles.push(animationId)
 
     let genTimeoutId = setTimeout(() => {
         if (!isGameOver) {
             generateObstacles()
-            allTimeouts.filter(id => id !== genTimeoutId)
+            allTimeouts = allTimeouts.filter(id => id !== genTimeoutId)
         }
     }, randomTime)
     allTimeouts.push(genTimeoutId)
 }
 
 async function gameOver() {
-    allIntervals.forEach(id => {
-        clearInterval(id)
-    })
-    allIntervals = []
-
     allTimeouts.forEach(id => {
         clearTimeout(id)
     })
     allTimeouts = []
+
+    allObstacles.forEach(id => {
+        cancelAnimationFrame(id)
+    })
+    allObstacles = []
 
     gameOverLabel.style.display = 'flex'
     startLabel.style.display = 'block'
